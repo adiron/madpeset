@@ -15,8 +15,11 @@ bot.start((ctx) => {
     return ctx.reply('Welcome!');
 })
 
+function getDate() {
+    return (new Date()).toLocaleString("iw")
+}
 function printDate(callback) {
-    printText((new Date()).toLocaleString("iw"));
+    printText(getDate());
     if (callback) {
         callback()
     }
@@ -47,7 +50,7 @@ bot.command('print', (ctx) => {
         const nameCmd = 'From ' + ctx.message.from.first_name  + ' ' + ctx.message.from.last_name + ' - @' + ctx.message.from.username + '\n\n' + content
         console.log("Printing message:",ctx.message)
         ctx.reply("Alright, I'll print your message!")
-        printText(nameCmd)
+        printText(getDate() + "\n" + nameCmd)
     } else {
         ctx.reply("Send the command /print <your text>")
     }
@@ -60,7 +63,7 @@ bot.command('banner', (ctx) => {
         } else {
             ctx.reply("Alright! Banner coming up.")
             const nameCmd = 'From ' + ctx.message.from.first_name  + ' ' + ctx.message.from.last_name + ' - @' + ctx.message.from.username
-            printDate(() => printText(nameCmd, () => printBanner(content)))
+            printText(getDate() + "\n" + nameCmd, () => printBanner(content))
         }
     } else {
         ctx.reply("Send the command /banner <your text>")
@@ -76,12 +79,12 @@ bot.on('photo', (ctx) => {
             console.log("Trying to download", result)
             let child_wget = exec('wget ' + result + ' -P tmp/', 
                     function(error, stdout, stderr) {
-                        console.log("Downloaded with wget:");
+                        console.log("Downloaded with wget!");
                         const fname = result.split('/').reverse()[0]
                         const nameCmd = 'From ' + ctx.message.from.first_name  + ' ' + ctx.message.from.last_name + ' - @' + ctx.message.from.username
-                        printDate(() => {printText(nameCmd, function() {
+                        printText(getDate() + "\n" + nameCmd, function() {
                             let child_lp = exec('lp -d thermal -- tmp/' + fname)
-                        })});
+                        });
                     })
         }, function(err) {
             console.log("error!!")
