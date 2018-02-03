@@ -12,12 +12,21 @@ console.log("Starting bot...")
 
 bot.start((ctx) => {
     console.log('started:', ctx.from.id);
-    return ctx.reply('Welcome!');
+    return ctx.reply('Welcome! I am a printer bot. I print stuff. Try sending an image.');
 })
 
 function getDate() {
     return (new Date()).toLocaleString("iw")
 }
+
+function getNameString(msg) {
+    if (msg.from.first_name || msg.from.last_name) {
+        return 'From ' + ( msg.from.first_name || '' )  + ' ' + ( msg.from.last_name || '' ) + ' - @' + msg.from.username
+    } else {
+        return 'From @'  + msg.from.username
+    }
+}
+
 function printDate(callback) {
     printText(getDate());
     if (callback) {
@@ -47,7 +56,7 @@ bot.command('help', (ctx) => ctx.reply('Send an image or use the command /print 
 bot.command('print', (ctx) => {
     const content = ctx.message.text.replace(/^\/print ?/, '')
     if (content.length > 0) {
-        const nameCmd = 'From ' + ctx.message.from.first_name  + ' ' + ctx.message.from.last_name + ' - @' + ctx.message.from.username + '\n\n' + content
+        const nameCmd = getNameString(ctx.message) + '\n\n' + content
         console.log("Printing message:",ctx.message)
         ctx.reply("Alright, I'll print your message!")
         printText(getDate() + "\n" + nameCmd)
@@ -62,13 +71,13 @@ bot.command('banner', (ctx) => {
             ctx.reply("Now you're just being silly. Try a shorter input...")
         } else {
             ctx.reply("Alright! Banner coming up.")
-            const nameCmd = 'From ' + ctx.message.from.first_name  + ' ' + ctx.message.from.last_name + ' - @' + ctx.message.from.username
+            const nameCmd = getNameString(ctx.message)
             printText(getDate() + "\n" + nameCmd, () => printBanner(content))
         }
     } else {
         ctx.reply("Send the command /banner <your text>")
     }
-    console.log("Printing banner:",ctx.message)
+    console.log("Printing banner:", content, "from", ctx.message.from)
 })
 bot.on('photo', (ctx) => {
     const img_obj = ctx.message.photo.sort((a, b) => b.file_size - a.file_size)[0]
@@ -81,7 +90,7 @@ bot.on('photo', (ctx) => {
                     function(error, stdout, stderr) {
                         console.log("Downloaded with wget!");
                         const fname = result.split('/').reverse()[0]
-                        const nameCmd = 'From ' + ctx.message.from.first_name  + ' ' + ctx.message.from.last_name + ' - @' + ctx.message.from.username
+                        const nameCmd = getNameString(ctx.message)
                         printText(getDate() + "\n" + nameCmd, function() {
                             let child_lp = exec('lp -d thermal -- tmp/' + fname)
                         });
