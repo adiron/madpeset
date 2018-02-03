@@ -1,0 +1,13 @@
+[Unit]
+Description=Madpeset bot
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/home/adiron/madpeset/
+Type=simple
+User=adiron
+ExecStart=/usr/bin/node /home/adiron/madpeset/bot.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
