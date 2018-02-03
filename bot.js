@@ -21,7 +21,10 @@ function getDate() {
 
 function getNameString(msg) {
     if (msg.from.first_name || msg.from.last_name) {
-        return 'From ' + ( msg.from.first_name || '' )  + ' ' + ( msg.from.last_name || '' ) + ' - @' + msg.from.username
+        // return 'From ' + ( msg.from.first_name || '' )  + ' ' + ( msg.from.last_name || '' ) + ' - @' + msg.from.username
+        return ['From', msg.from.first_name, msg.from.last_name, "- @" + msg.from.username]
+            .filter(e => e)
+            .join(' ')
     } else {
         return 'From @'  + msg.from.username
     }
