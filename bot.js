@@ -30,17 +30,14 @@ function getNameString(msg) {
     }
 }
 
-function printDate(callback) {
-    printText(getDate());
-    if (callback) {
-        callback()
-    }
-}
-
 function printText(t, callback) {
-    const child = child_process.spawn('lp', ['-d', 'thermal', '-o', 'cpi=19'])
+    const child = child_process.spawn('./mktext.sh', [])
+    console.log("Printing text using mktext script:")
     child.stdin.write(t)
+    child.stdin.write('\n')
     child.stdin.end()
+    child.stdout.pipe(process.stdout)
+    child.stderr.pipe(process.stdout)
     if (callback) {
         callback()
     }
