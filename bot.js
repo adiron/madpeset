@@ -22,9 +22,11 @@ function getDate() {
 function getNameString(msg) {
     if (msg.from.first_name || msg.from.last_name) {
         // return 'From ' + ( msg.from.first_name || '' )  + ' ' + ( msg.from.last_name || '' ) + ' - @' + msg.from.username
-        return ['From', msg.from.first_name, msg.from.last_name, "- @" + msg.from.username]
-            .filter(e => e)
-            .join(' ')
+        const parts = ['From', msg.from.first_name, msg.from.last_name]
+        if (msg.from.username) {
+            parts.push("- @" + msg.from.username)
+        }
+        return parts.filter(e => e).join(' ')
     } else {
         return 'From @'  + msg.from.username
     }
@@ -38,8 +40,8 @@ function printText(t, callback) {
     child.stdin.end()
     child.stdout.pipe(process.stdout)
     child.stderr.pipe(process.stdout)
-    if (callback) {
-        callback()
+    if (callback && typeof callback == 'function') { 
+        child.on("exit", callback)
     }
 }
 
@@ -47,8 +49,8 @@ function printBanner(t, callback) {
     const child = child_process.spawn('./mkbanner.sh', [])
     child.stdin.write(t)
     child.stdin.end()
-    if (callback) {
-        callback()
+    if (callback && typeof callback == 'function') { 
+        child.on("exit", callback)
     }
 }
 
@@ -102,5 +104,17 @@ bot.on('photo', (ctx) => {
     )
 
 });
+
+bot.on('text', (ctx) => {
+    const content = ctx.message.text
+    if (content.length < 500) {
+        const nameCmd = getNameString(ctx.message) + '\n\n' + content
+        console.log("Printing message:",ctx.message)
+        ctx.reply("Printing message.")
+        printText(getDate() + "\n" + nameCmd)
+    } else {
+        ctx.reply("Let's go for shorter messages, okay?")
+    }
+})
 
 bot.startPolling()
