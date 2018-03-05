@@ -21,7 +21,6 @@ function getDate() {
 
 function getNameString(msg) {
     if (msg.from.first_name || msg.from.last_name) {
-        // return 'From ' + ( msg.from.first_name || '' )  + ' ' + ( msg.from.last_name || '' ) + ' - @' + msg.from.username
         const parts = ['From', msg.from.first_name, msg.from.last_name]
         if (msg.from.username) {
             parts.push("- @" + msg.from.username)
@@ -55,6 +54,42 @@ function printBanner(t, callback) {
 }
 
 bot.command('help', (ctx) => ctx.reply('Send an image or use the command /print to print a message!'))
+bot.command('network', (ctx) => {
+    var os = require('os');
+    var ifaces = os.networkInterfaces();
+
+    var interfaceStr = "";
+
+    Object.keys(ifaces).forEach(function (ifname) {
+      var alias = 0;
+
+      ifaces[ifname].forEach(function (iface) {
+        if ('IPv4' !== iface.family || iface.internal !== false) {
+          // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
+          return;
+        }
+
+        if (alias >= 1) {
+          // this single interface has multiple ipv4 addresses
+          interfaceStr += ifname + ':' + alias + " " + iface.address + '\n';
+        } else {
+          // this interface has only one ipv4 adress
+          interfaceStr += ifname + " " + iface.address + '\n';
+        }
+        ++alias;
+      });
+    });
+
+    ctx.reply(interfaceStr)
+})
+
+bot.command('wifi_pass', (ctx) => {
+    const parts = ctx.message.text.split(/ +/).filter(a => a.length>0);
+    ctx.reply("Wifi ssid: " + parts[1] + " - password: " + parts[2]);
+    const child = child_process.spawn('./add_wifi.sh', [parts[1], parts[2]]);
+    child.stdin.write(t)
+    child.stdin.end()
+})
 bot.command('print', (ctx) => {
     const content = ctx.message.text.replace(/^\/print ?/, '')
     if (content.length > 0) {
